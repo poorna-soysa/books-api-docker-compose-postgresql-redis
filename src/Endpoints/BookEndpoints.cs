@@ -23,7 +23,7 @@ public static class BookEndpoints
     {
         var books = await bookService.GetBooksAsync(cancellationToken);
 
-        return Results.Ok(books.Select(b => b.ToDto()));
+        return Results.Ok(books.Select(b => b.ToResponseDto()));
     }
 
     public static async Task<IResult> GetBookById(
@@ -50,7 +50,7 @@ public static class BookEndpoints
             return Results.NotFound();
         }
 
-        response = book.ToDto();
+        response = book.ToResponseDto();
 
         await cacheService.SetDataAsync<BookResponse>(
             cacheKey,

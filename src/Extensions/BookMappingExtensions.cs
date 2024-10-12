@@ -2,7 +2,7 @@
 
 public static class BookMappingExtensions
 {
-    public static BookResponse ToDto(this Book book)
+    public static BookResponse ToResponseDto(this Book book)
     {
         return new(
             book.Id,
