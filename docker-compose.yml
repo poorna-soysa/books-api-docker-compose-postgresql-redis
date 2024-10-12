@@ -1,0 +1,28 @@
+services:
+  books.api:
+    image: ${DOCKER_REGISTRY-}booksapi
+    container_name: books.api
+    build:
+      context: .
+      dockerfile: src/Dockerfile
+    ports:
+      - "5000:5000"
+      - "5001:5001"  
+
+  books.db:
+    image: postgres:latest
+    container_name: books.db
+    environment:
+      - POSTGRES_DB=books
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./.containers/books-db:/var/lib/postgresql/data 
+    ports:
+      - 5432:5432
+
+  books.cache:
+     image: redis:latest
+     restart: always
+     ports:
+      - 6379:6379

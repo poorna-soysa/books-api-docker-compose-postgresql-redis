@@ -1,0 +1,6 @@
+@Books.Api.Docker_HostAddress = http://localhost:5225
+
+GET {{Books.Api.Docker_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
