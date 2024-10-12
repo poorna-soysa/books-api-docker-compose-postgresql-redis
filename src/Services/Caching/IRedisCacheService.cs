@@ -2,6 +2,7 @@
 
 public interface IRedisCacheService
 {
-    T? GetData<T>(string key);
-    void SetData<T>(string key, T data);
+    Task<T?> GetDataAsync<T>(string key, CancellationToken cancellationToken);
+    Task SetDataAsync<T>(string key, T data, CancellationToken cancellationToken);
+    Task RemoveDataAsync(string key, CancellationToken cancellationToken);
 }

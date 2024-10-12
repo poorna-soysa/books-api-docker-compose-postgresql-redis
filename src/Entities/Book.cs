@@ -1,4 +1,4 @@
-﻿namespace Books.Api.Docker.Entitties;
+﻿namespace Books.Api.Docker.Entities;
 
 public sealed class Book
 {

@@ -5,11 +5,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<ApplicationDbContext>(
-    options => options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresDatabase")));
-
-builder.Services.AddStackExchangeRedisCache(
-    options => options.Configuration = builder.Configuration.GetConnectionString("RedisCache"));
+builder.Services
+    .AddPostgreSqlConfig(builder.Configuration)
+    .AddRedisConfig(builder.Configuration);
 
 builder.Services.AddScoped<IRedisCacheService,RedisCacheService>();
 builder.Services.AddScoped<IBookService,BookService>();

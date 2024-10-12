@@ -33,7 +33,9 @@ public static class BookEndpoints
         {
             var cacheKey = $"book={id}";
 
-            var response = cacheService.GetData<BookResponse>(cacheKey);
+            var response = await cacheService.GetDataAsync<BookResponse>(
+                cacheKey,
+                cancellationToken);
 
             if (response is not null)
             {
@@ -54,7 +56,10 @@ public static class BookEndpoints
                book.Description,
                book.Author);
 
-            cacheService.SetData<BookResponse>(cacheKey, response);
+            await cacheService.SetDataAsync<BookResponse>(
+                cacheKey,
+                response,
+                cancellationToken);
 
             return Results.Ok(response);
         });
@@ -83,8 +88,11 @@ public static class BookEndpoints
             int id,
             UpdateBookRequest request,
             IBookService bookService,
+            IRedisCacheService cacheService,
             CancellationToken cancellationToken) =>
         {
+            var cacheKey = $"book={id}";
+
             var book = new Book
             {
                 Id = id,
@@ -96,6 +104,8 @@ public static class BookEndpoints
 
             await bookService.UpdateBookAsync(book, cancellationToken);
 
+            await cacheService.RemoveDataAsync(cacheKey, cancellationToken);
+
             return Results.NoContent();
         });
 
@@ -104,9 +114,14 @@ public static class BookEndpoints
         bookGroup.MapDelete("{id}", async (
             int id,
             IBookService bookService,
+            IRedisCacheService cacheService,
             CancellationToken cancellationToken) =>
         {
+            var cacheKey = $"book={id}";
+
             await bookService.DeleteBookByIdAsync(id, cancellationToken);
+
+            await cacheService.RemoveDataAsync(cacheKey, cancellationToken);
 
             return Results.NoContent();
         });

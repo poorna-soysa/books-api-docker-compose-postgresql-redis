@@ -1,6 +1,4 @@
-﻿using Books.Api.Docker.Entitties;
-
-namespace Books.Api.Docker.Services;
+﻿namespace Books.Api.Docker.Services;
 
 public interface IBookService
 {
