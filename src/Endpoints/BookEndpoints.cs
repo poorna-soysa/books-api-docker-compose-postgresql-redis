@@ -23,13 +23,7 @@ public static class BookEndpoints
     {
         var books = await bookService.GetBooksAsync(cancellationToken);
 
-        return Results.Ok(books.Select(b => new BookResponse
-                 (b.Id,
-                 b.Title,
-                 b.ISBN,
-                 b.Description,
-                 b.Author
-                 )));
+        return Results.Ok(books.Select(b => b.ToDto()));
     }
 
     public static async Task<IResult> GetBookById(
@@ -56,12 +50,7 @@ public static class BookEndpoints
             return Results.NotFound();
         }
 
-        response = new(
-           book.Id,
-           book.Title,
-           book.ISBN,
-           book.Description,
-           book.Author);
+        response = book.ToDto();
 
         await cacheService.SetDataAsync<BookResponse>(
             cacheKey,
@@ -76,13 +65,7 @@ public static class BookEndpoints
             IBookService bookService,
             CancellationToken cancellationToken)
     {
-        var book = new Book
-        {
-            Title = request.Title,
-            ISBN = request.ISBN,
-            Description = request.Description,
-            Author = request.Author
-        };
+        var book = request.ToEntity();
 
         book.Id = await bookService.CreateBookAsync(book, cancellationToken);
 
@@ -103,14 +86,8 @@ public static class BookEndpoints
         {
             var cacheKey = $"book_{id}";
 
-            var book = new Book
-            {
-                Id = id,
-                Title = request.Title,
-                ISBN = request.ISBN,
-                Description = request.Description,
-                Author = request.Author
-            };
+            var book = request.ToEntity(id);
+
             await bookService.UpdateBookAsync(book, cancellationToken);
 
             await cacheService.RemoveDataAsync(cacheKey, cancellationToken);

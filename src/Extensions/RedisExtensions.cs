@@ -1,6 +1,4 @@
-﻿using System.Data.Common;
-
-namespace Books.Api.Docker.Extensions;
+﻿namespace Books.Api.Docker.Extensions;
 
 public static class RedisExtensions
 {

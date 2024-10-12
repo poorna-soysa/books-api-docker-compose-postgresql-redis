@@ -31,8 +31,11 @@ public class BookService(ApplicationDbContext context) : IBookService
               b => b.Id == id, 
               cancellationToken);
 
-    public async Task<IEnumerable<Book?>> GetBooksAsync(CancellationToken cancellationToken)
-        => await context.Books.AsNoTracking().ToListAsync(cancellationToken);
+    public async Task<IEnumerable<Book>> GetBooksAsync(CancellationToken cancellationToken)
+        => await context.Books
+        .AsNoTracking()
+        .OrderBy(o=>o.Id)
+        .ToListAsync(cancellationToken);
 
     public async Task UpdateBookAsync(Book book, CancellationToken cancellationToken)
     {
