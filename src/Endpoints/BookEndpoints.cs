@@ -1,9 +1,4 @@
-﻿using Books.Api.Docker.Database;
-using Books.Api.Docker.Dtos;
-using Books.Api.Docker.Entitties;
-using Microsoft.EntityFrameworkCore;
-
-namespace Books.Api.Docker.Endpoints;
+﻿namespace Books.Api.Docker.Endpoints;
 
 public static class BookEndpoints
 {
@@ -13,44 +8,53 @@ public static class BookEndpoints
 
         // Get All
         bookGroup.MapGet("", async (
-            ApplicationDbContext dbContext,
+            IBookService bookService,
             CancellationToken cancellationToken) =>
         {
-            var books = await dbContext.Books
-                .AsNoTracking()
-                 .Select(b => new BookResponse(
-                     b.Id,
-                     b.Title,
-                     b.ISBN,
-                     b.Description,
-                     b.Author))
-                .ToListAsync();
+            var books = await bookService.GetBooksAsync(cancellationToken);
 
-            return Results.Ok(books);
+            return Results.Ok(books.Select(b => new BookResponse
+                (
+                b.Id,
+                b.Title,
+                b.ISBN,
+                b.Description,
+                b.Author
+                )));
         });
 
 
         // Get by Id
         bookGroup.MapGet("{id}", async (
             int id,
-            ApplicationDbContext dbContext,
+            IBookService bookService,
+            IRedisCacheService cacheService,
             CancellationToken cancellationToken) =>
         {
-            var book = await dbContext.Books
-            .AsNoTracking()
-            .FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
+            var cacheKey = $"book={id}";
+
+            var response = cacheService.GetData<BookResponse>(cacheKey);
+
+            if (response is not null)
+            {
+                return Results.Ok(response);
+            }
+
+            var book = await bookService.GetBookByIdAsync(id, cancellationToken);
 
             if (book is null)
             {
                 return Results.NotFound();
             }
 
-            BookResponse response = new(
-                book.Id,
-                book.Title,
-                book.ISBN,
-                book.Description,
-                book.Author);
+            response = new(
+               book.Id,
+               book.Title,
+               book.ISBN,
+               book.Description,
+               book.Author);
+
+            cacheService.SetData<BookResponse>(cacheKey, response);
 
             return Results.Ok(response);
         });
@@ -58,7 +62,7 @@ public static class BookEndpoints
         //Create
         bookGroup.MapPost("", async (
             CreateBookRequest request,
-            ApplicationDbContext dbContext,
+            IBookService bookService,
             CancellationToken cancellationToken) =>
         {
             var book = new Book
@@ -69,9 +73,7 @@ public static class BookEndpoints
                 Author = request.Author
             };
 
-            dbContext.Add(book);
-
-            await dbContext.SaveChangesAsync(cancellationToken);
+            book.Id = await bookService.CreateBookAsync(book, cancellationToken);
 
             return Results.Ok(Results.Created($"{book.Id}", book));
         });
@@ -80,23 +82,19 @@ public static class BookEndpoints
         bookGroup.MapPut("{id}", async (
             int id,
             UpdateBookRequest request,
-            ApplicationDbContext dbContext,
+            IBookService bookService,
             CancellationToken cancellationToken) =>
         {
-            var book = await dbContext.Books
-            .FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
-
-            if (book is null)
+            var book = new Book
             {
-                return Results.NotFound();
-            }
+                Id = id,
+                Title = request.Title,
+                ISBN = request.ISBN,
+                Description = request.Description,
+                Author = request.Author
+            };
 
-            book.Title = request.Title;
-            book.ISBN = request.ISBN;
-            book.Description = request.Description;
-            book.Author = request.Author;
-
-            await dbContext.SaveChangesAsync(cancellationToken);
+            await bookService.UpdateBookAsync(book, cancellationToken);
 
             return Results.NoContent();
         });
@@ -105,20 +103,10 @@ public static class BookEndpoints
         // Delete
         bookGroup.MapDelete("{id}", async (
             int id,
-            ApplicationDbContext dbContext,
+            IBookService bookService,
             CancellationToken cancellationToken) =>
         {
-            var book = await dbContext.Books
-            .FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
-
-            if (book is null)
-            {
-                return Results.NotFound();
-            }
-
-            dbContext.Remove(book);
-
-            await dbContext.SaveChangesAsync(cancellationToken);
+            await bookService.DeleteBookByIdAsync(id, cancellationToken);
 
             return Results.NoContent();
         });

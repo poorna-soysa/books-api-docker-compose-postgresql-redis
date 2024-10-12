@@ -1,7 +1,4 @@
-﻿using Books.Api.Docker.Database;
-using Microsoft.EntityFrameworkCore;
-
-namespace Books.Api.Docker.Extensions;
+﻿namespace Books.Api.Docker.Extensions;
 
 public static class MigrationExtensions
 {

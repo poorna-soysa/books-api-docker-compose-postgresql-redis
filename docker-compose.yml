@@ -23,6 +23,7 @@ services:
 
   books.cache:
      image: redis:latest
+     container_name: books.cache
      restart: always
      ports:
       - 6379:6379

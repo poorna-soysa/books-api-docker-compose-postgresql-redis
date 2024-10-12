@@ -1,8 +1,3 @@
-using Books.Api.Docker.Database;
-using Books.Api.Docker.Endpoints;
-using Books.Api.Docker.Extensions;
-using Microsoft.EntityFrameworkCore;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -12,6 +7,12 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<ApplicationDbContext>(
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresDatabase")));
+
+builder.Services.AddStackExchangeRedisCache(
+    options => options.Configuration = builder.Configuration.GetConnectionString("RedisCache"));
+
+builder.Services.AddScoped<IRedisCacheService,RedisCacheService>();
+builder.Services.AddScoped<IBookService,BookService>();
 
 var app = builder.Build();
 
