@@ -1,3 +1,4 @@
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -7,10 +8,13 @@ builder.Services.AddSwaggerGen();
 
 builder.Services
     .AddPostgreSqlConfig(builder.Configuration)
-    .AddRedisConfig(builder.Configuration);
+    .AddRedisConfig(builder.Configuration)
+    .AddHealthChecks()
+    .AddPostgreSqlHealth(builder.Configuration)
+    .AddRedisHealth(builder.Configuration);
 
-builder.Services.AddScoped<IRedisCacheService,RedisCacheService>();
-builder.Services.AddScoped<IBookService,BookService>();
+builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
+builder.Services.AddScoped<IBookService, BookService>();
 
 var app = builder.Build();
 
@@ -21,6 +25,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
     app.ApplyMigrations();
 }
+app.MapHealthChecks("health", new HealthCheckOptions
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
 
 app.UseHttpsRedirection();
 
