@@ -18,7 +18,7 @@ public class BookService(ApplicationDbContext context) : IBookService
 
         if (book is null)
         {
-            throw new ArgumentException($"Book is not foud = {id}");
+            throw new ArgumentException($"Book is not foud Id {id}");
         }
 
         context.Remove(book);
@@ -41,7 +41,7 @@ public class BookService(ApplicationDbContext context) : IBookService
 
         if (bookObj is null)
         {
-            throw new ArgumentException($"Book is not foud = {book.Id}");
+            throw new ArgumentException($"Book is not foud Id {book.Id}");
         }
 
         bookObj.Title = book.Title;

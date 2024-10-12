@@ -6,92 +6,102 @@ public static class BookEndpoints
     {
         var bookGroup = app.MapGroup("books");
 
-        // Get All
-        bookGroup.MapGet("", async (
-            IBookService bookService,
-            CancellationToken cancellationToken) =>
+        bookGroup.MapGet("", GetAllBooks).WithName(nameof(GetAllBooks));
+
+        bookGroup.MapGet("{id}", GetBookById).WithName(nameof(GetBookById));
+
+        bookGroup.MapPost("", CreateBook).WithName(nameof(CreateBook));
+
+        bookGroup.MapPut("{id}", UpdateBook).WithName(nameof(UpdateBook));
+
+        bookGroup.MapDelete("{id}", DeleteBookById).WithName(nameof(DeleteBookById));
+    }
+
+    public static async Task<IResult> GetAllBooks(
+        IBookService bookService,
+        CancellationToken cancellationToken)
+    {
+        var books = await bookService.GetBooksAsync(cancellationToken);
+
+        return Results.Ok(books.Select(b => new BookResponse
+                 (b.Id,
+                 b.Title,
+                 b.ISBN,
+                 b.Description,
+                 b.Author
+                 )));
+    }
+
+    public static async Task<IResult> GetBookById(
+         int id,
+         IBookService bookService,
+         IRedisCacheService cacheService,
+         CancellationToken cancellationToken)
+    {
+        var cacheKey = $"book_{id}";
+
+        var response = await cacheService.GetDataAsync<BookResponse>(
+            cacheKey,
+            cancellationToken);
+
+        if (response is not null)
         {
-            var books = await bookService.GetBooksAsync(cancellationToken);
-
-            return Results.Ok(books.Select(b => new BookResponse
-                (
-                b.Id,
-                b.Title,
-                b.ISBN,
-                b.Description,
-                b.Author
-                )));
-        });
-
-
-        // Get by Id
-        bookGroup.MapGet("{id}", async (
-            int id,
-            IBookService bookService,
-            IRedisCacheService cacheService,
-            CancellationToken cancellationToken) =>
-        {
-            var cacheKey = $"book={id}";
-
-            var response = await cacheService.GetDataAsync<BookResponse>(
-                cacheKey,
-                cancellationToken);
-
-            if (response is not null)
-            {
-                return Results.Ok(response);
-            }
-
-            var book = await bookService.GetBookByIdAsync(id, cancellationToken);
-
-            if (book is null)
-            {
-                return Results.NotFound();
-            }
-
-            response = new(
-               book.Id,
-               book.Title,
-               book.ISBN,
-               book.Description,
-               book.Author);
-
-            await cacheService.SetDataAsync<BookResponse>(
-                cacheKey,
-                response,
-                cancellationToken);
-
             return Results.Ok(response);
-        });
+        }
 
-        //Create
-        bookGroup.MapPost("", async (
-            CreateBookRequest request,
-            IBookService bookService,
-            CancellationToken cancellationToken) =>
+        var book = await bookService.GetBookByIdAsync(id, cancellationToken);
+
+        if (book is null)
         {
-            var book = new Book
-            {
-                Title = request.Title,
-                ISBN = request.ISBN,
-                Description = request.Description,
-                Author = request.Author
-            };
+            return Results.NotFound();
+        }
 
-            book.Id = await bookService.CreateBookAsync(book, cancellationToken);
+        response = new(
+           book.Id,
+           book.Title,
+           book.ISBN,
+           book.Description,
+           book.Author);
 
-            return Results.Ok(Results.Created($"{book.Id}", book));
-        });
+        await cacheService.SetDataAsync<BookResponse>(
+            cacheKey,
+            response,
+            cancellationToken);
 
-        // Update
-        bookGroup.MapPut("{id}", async (
+        return Results.Ok(response);
+    }
+
+    public static async Task<IResult> CreateBook(
+             CreateBookRequest request,
+            IBookService bookService,
+            CancellationToken cancellationToken)
+    {
+        var book = new Book
+        {
+            Title = request.Title,
+            ISBN = request.ISBN,
+            Description = request.Description,
+            Author = request.Author
+        };
+
+        book.Id = await bookService.CreateBookAsync(book, cancellationToken);
+
+        return Results.CreatedAtRoute(
+            nameof(GetBookById),
+            new { id = book.Id },
+            book);
+    }
+
+    public static async Task<IResult> UpdateBook(
             int id,
             UpdateBookRequest request,
             IBookService bookService,
             IRedisCacheService cacheService,
-            CancellationToken cancellationToken) =>
+            CancellationToken cancellationToken)
+    {
+        try
         {
-            var cacheKey = $"book={id}";
+            var cacheKey = $"book_{id}";
 
             var book = new Book
             {
@@ -101,29 +111,37 @@ public static class BookEndpoints
                 Description = request.Description,
                 Author = request.Author
             };
-
             await bookService.UpdateBookAsync(book, cancellationToken);
 
             await cacheService.RemoveDataAsync(cacheKey, cancellationToken);
 
             return Results.NoContent();
-        });
+        }
+        catch (Exception ex)
+        {
+            return Results.NotFound(ex.Message);
+        }
+    }
 
-
-        // Delete
-        bookGroup.MapDelete("{id}", async (
+    public static async Task<IResult> DeleteBookById(
             int id,
             IBookService bookService,
             IRedisCacheService cacheService,
-            CancellationToken cancellationToken) =>
+            CancellationToken cancellationToken)
+    {
+        try
         {
-            var cacheKey = $"book={id}";
+            var cacheKey = $"book_{id}";
 
             await bookService.DeleteBookByIdAsync(id, cancellationToken);
 
             await cacheService.RemoveDataAsync(cacheKey, cancellationToken);
 
             return Results.NoContent();
-        });
+        }
+        catch (Exception ex)
+        {
+            return Results.NotFound(ex.Message);
+        }
     }
 }
