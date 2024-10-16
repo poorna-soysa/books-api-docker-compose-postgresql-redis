@@ -45,6 +45,7 @@ This template follows the Vertical Slice Architecture, which organizes code by f
 - **Docker Compose**: Manages multi-container applications seamlessly.
 - **PostgreSQL**: Powerful relational database for data storage.
 - **Redis**: Caching solution for improved performance.
+- **Health Check**: Standardized approach for monitoring and assessing the operational status of systems.
 
 ## Technologies Used
 
