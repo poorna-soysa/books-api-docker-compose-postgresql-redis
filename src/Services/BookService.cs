@@ -27,14 +27,14 @@ public class BookService(ApplicationDbContext context) : IBookService
     }
 
     public async Task<Book?> GetBookByIdAsync(int id, CancellationToken cancellationToken)
-          => await context.Books.AsNoTracking().FirstOrDefaultAsync(
-              b => b.Id == id, 
-              cancellationToken);
+          => await context.Books
+            .AsNoTracking()
+            .FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
 
     public async Task<IEnumerable<Book>> GetBooksAsync(CancellationToken cancellationToken)
         => await context.Books
         .AsNoTracking()
-        .OrderBy(o=>o.Id)
+        .OrderBy(o => o.Id)
         .ToListAsync(cancellationToken);
 
     public async Task UpdateBookAsync(Book book, CancellationToken cancellationToken)
