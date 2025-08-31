@@ -1,6 +1,6 @@
 ﻿namespace Books.Api.Docker.Services;
 
-public class BookService(ApplicationDbContext context) : IBookService
+public sealed class BookService(ApplicationDbContext context) : IBookService
 {
     public async Task<int> CreateBookAsync(Book book, CancellationToken cancellationToken)
     {
