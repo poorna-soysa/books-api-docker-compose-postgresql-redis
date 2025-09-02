@@ -44,7 +44,7 @@ public sealed class BookService(ApplicationDbContext context) : IBookService
 
         if (bookObj is null)
         {
-            throw new ArgumentException($"Book is not found Id {book.Id}");
+            throw new ArgumentException($"Book is not found with Id {book.Id}");
         }
 
         bookObj.Title = book.Title;
