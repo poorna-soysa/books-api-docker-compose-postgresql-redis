@@ -7,7 +7,6 @@ public sealed class BookService(ApplicationDbContext context) : IBookService
         context.Add(book);
 
         await context.SaveChangesAsync(cancellationToken);
-
         return book.Id;
     }
 
