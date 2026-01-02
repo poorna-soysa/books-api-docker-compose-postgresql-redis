@@ -1,6 +1,6 @@
-# Book API with .NET 9, Docker Compose, PostgreSQL, and Redis
+# Book API with .NET 10, Docker Compose, PostgreSQL, and Redis
 
-This repository showcases a sample API built with .NET 9, designed to demonstrate the integration of Docker Compose for container orchestration. The application utilizes PostgreSQL as its primary database and Redis for caching, providing a robust foundation for scalable web Apis.
+This repository showcases a sample API built with .NET 10, designed to demonstrate the integration of Docker Compose for container orchestration. The application utilizes PostgreSQL as its primary database and Redis for caching, providing a robust foundation for scalable web Apis.
 
 ## Table of Contents
 
@@ -17,7 +17,7 @@ To get a local copy up and running, follow these simple steps.
 
 ### Prerequisites
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 - Docker
 
 ### Installation
@@ -37,11 +37,9 @@ To get a local copy up and running, follow these simple steps.
 
 ## Architecture Overview
 
-This template follows the Vertical Slice Architecture, which organizes code by features rather than technical concerns. Each feature is self-contained, promoting high cohesion and low coupling.
-
 ## Features
 
-- **Built with .NET 9**: Utilizes the latest features for efficient development.
+- **Built with .NET 10**: Utilizes the latest features for efficient development.
 - **Docker Compose**: Manages multi-container applications seamlessly.
 - **PostgreSQL**: Powerful relational database for data storage.
 - **Redis**: Caching solution for improved performance.
@@ -49,7 +47,7 @@ This template follows the Vertical Slice Architecture, which organizes code by f
 
 ## Technologies Used
 
-- **.NET 9**
+- **.NET 10**
 - **PostgreSQL**
 - **Redis**
 - **EF Core**
