@@ -15,7 +15,7 @@ public static class RedisExtensions
     public static IHealthChecksBuilder AddRedisHealth(this IHealthChecksBuilder services,
        IConfiguration configuration)
     {
-        services.AddRedis(configuration.GetConnectionString(ConnectionString));
+        services.AddRedis(configuration.GetConnectionString(ConnectionString)!);
 
         return services;
     }

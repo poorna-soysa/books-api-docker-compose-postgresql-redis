@@ -15,7 +15,7 @@ public static class PostgreSqlExtensions
     public static IHealthChecksBuilder AddPostgreSqlHealth(this IHealthChecksBuilder services,
         IConfiguration configuration)
     {
-        services.AddNpgSql(configuration.GetConnectionString(ConnectionString));
+        services.AddNpgSql(configuration.GetConnectionString(ConnectionString)!);
 
         return services;
     }
