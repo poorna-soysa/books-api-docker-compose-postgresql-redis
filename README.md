@@ -17,7 +17,7 @@ To get a local copy up and running, follow these simple steps.
 
 ### Prerequisites
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 - Docker
 
 ### Installation
@@ -32,7 +32,7 @@ To get a local copy up and running, follow these simple steps.
    ```
 3. Build and run the application:
    ```sh
-   docker-compose up --build
+   docker compose up --build
    ```
 
 ## Architecture Overview
@@ -71,4 +71,3 @@ Distributed under the MIT License. See `LICENSE` for more information.
 If you find this project helpful, consider buying me a coffee!
 
 [![Buy Me a Coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/poorna.soysa)
-```

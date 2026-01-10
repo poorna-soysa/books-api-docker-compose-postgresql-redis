@@ -1,10 +1,22 @@
-﻿namespace Books.Api.Docker.Dtos;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Books.Api.Docker.Dtos;
 
 public sealed record CreateBookRequest(
-    string Title, 
-    string ISBN, 
-    string Description, 
-    string Author);
+    [property: Required]
+    [property: StringLength(200, MinimumLength = 1)]
+    string Title,
+
+    [property: Required]
+    string ISBN,
+
+    [property: StringLength(2000)]
+    string Description,
+
+    [property: Required]
+    [property: StringLength(150)]
+    string Author
+);
 
 public sealed record BookResponse(
     int Id,
@@ -14,8 +26,17 @@ public sealed record BookResponse(
     string Author);
 
 public sealed record UpdateBookRequest(
+    [property: Required]
+    [property: StringLength(200, MinimumLength = 1)]
     string Title,
-    string ISBN,
-    string Description,
-    string Author);
 
+    [property: Required]
+    string ISBN,
+
+    [property: StringLength(2000)]
+    string Description,
+
+    [property: Required]
+    [property: StringLength(150)]
+    string Author
+);

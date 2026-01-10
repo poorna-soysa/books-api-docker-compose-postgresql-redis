@@ -30,6 +30,7 @@ public class RedisCacheService(IDistributedCache cache) : IRedisCacheService
         await cache.SetStringAsync(
             key,
             JsonSerializer.Serialize(data),
-            options);
+            options,
+            cancellationToken);
     }
 }

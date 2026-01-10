@@ -2,17 +2,19 @@
 
 public sealed class BookService(ApplicationDbContext context) : IBookService
 {
+    private readonly ApplicationDbContext _context = context;
+
     public async Task<int> CreateBookAsync(Book book, CancellationToken cancellationToken)
     {
-        context.Add(book);
+        _context.Books.Add(book);
 
-        await context.SaveChangesAsync(cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
         return book.Id;
     }
 
     public async Task DeleteBookByIdAsync(int id, CancellationToken cancellationToken)
     {
-        var book = await context.Books
+        var book = await _context.Books
              .FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
 
         if (book is null)
@@ -20,25 +22,25 @@ public sealed class BookService(ApplicationDbContext context) : IBookService
             throw new ArgumentException($"Book is not foud Id {id}");
         }
 
-        context.Remove(book);
+        _context.Books.Remove(book);
 
-        await context.SaveChangesAsync(cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<Book?> GetBookByIdAsync(int id, CancellationToken cancellationToken)
-          => await context.Books
+          => await _context.Books
             .AsNoTracking()
             .FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
 
     public async Task<IEnumerable<Book>> GetBooksAsync(CancellationToken cancellationToken)
-        => await context.Books
+        => await _context.Books
         .AsNoTracking()
         .OrderBy(o => o.Id)
         .ToListAsync(cancellationToken);
 
     public async Task UpdateBookAsync(Book book, CancellationToken cancellationToken)
     {
-        var bookObj = await context.Books
+        var bookObj = await _context.Books
              .FirstOrDefaultAsync(b => b.Id == book.Id, cancellationToken);
 
         if (bookObj is null)
@@ -51,6 +53,6 @@ public sealed class BookService(ApplicationDbContext context) : IBookService
         bookObj.Description = book.Description;
         bookObj.Author = book.Author;
 
-        await context.SaveChangesAsync(cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
     }
 }
